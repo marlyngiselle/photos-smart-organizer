@@ -1,0 +1,71 @@
+# photosorg configuration. Copy to ~/.config/photosorg/config.toml and edit.
+# Every key is optional; anything left out keeps the default shown here.
+
+[library]
+folder = "Smart Organizer"          # top-level folder in Photos that holds every album
+# path = "/Volumes/External/Photos Library.photoslibrary"   # default: the system library
+media = ["photo", "live"]           # add "video" to file videos too
+
+[schedule]
+interval_minutes = 30               # LaunchAgent cadence
+
+[home]
+# Placeholder: Apple Park, a public landmark. Use a point near (not at) your home.
+name = "Home"
+lat = 37.3349
+lon = -122.0090
+radius_km = 25
+
+[[geofences]]
+name = "Golden Gate Park"
+lat = 37.7694
+lon = -122.4862
+radius_m = 1200
+
+[albums]
+by_country = true
+by_city = true
+by_geofence = true
+by_year = true
+by_month = true
+trips = true
+
+[albums.templates]
+country = "Places · {country}"
+city = "Places · {country} · {city}"
+geofence = "Places · {name}"
+year = "Timeline · {year}"
+month = "Timeline · {year}-{month:02d}"
+trip = "Trip · {city} · {year}-{month:02d}"
+
+[trips]
+min_distance_km = 100               # farther than this from home counts as away
+max_gap_days = 1                    # days without photos a trip may skip
+min_photos = 5                      # fewer than this is a day out, not a trip
+lookback_days = 14                  # how far back `--since auto` re-reads for context
+
+[favourites]
+enabled = true
+album = "Suggested favourites"
+add_keyword = false                 # opt-in: also tag suggestions with the keyword below
+keyword = "photosorg:suggested"
+top_n_per_event = 2
+group_by = "day"                    # "day" or "event" (a whole trip is one event)
+min_score = 0.65
+near_duplicate_seconds = 3.0
+near_duplicate_score_delta = 0.08
+skip_existing_favourites = true
+settle_hours = 6                    # wait this long after midnight before judging a day
+
+[favourites.weights]                # must add up to 1.0
+aesthetic = 0.35
+curation = 0.20
+sharpness = 0.15
+composition = 0.10
+faces = 0.10
+people = 0.10
+
+[favourites.penalties]
+blurry = 0.30
+blurry_threshold = 0.25
+unanalysed = 0.05
