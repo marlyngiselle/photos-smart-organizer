@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "photosorg"
+version = "0.1.0"
+description = "Files every new iPhone photo into Apple Photos albums by place, date and trip, and suggests favourites. Entirely on-device."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Giselle Da Costa" }]
+requires-python = ">=3.11"
+dependencies = []
+keywords = ["apple-photos", "macos", "launchd", "automation", "osxphotos"]
+classifiers = [
+  "Environment :: Console",
+  "Environment :: MacOS X",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Multimedia :: Graphics",
+  "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+macos = ["osxphotos>=0.68"]
+dev = ["pytest>=8", "hypothesis>=6.100", "ruff>=0.6", "mypy>=1.11"]
+
+[project.scripts]
+photosorg = "photosorg.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/photosorg"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "PTH", "C4"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = "src"
+packages = ["photosorg"]
+
+[[tool.mypy.overrides]]
+module = ["osxphotos", "osxphotos.*"]
+ignore_missing_imports = true
