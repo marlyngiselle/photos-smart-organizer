@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="title desc">
+  <title id="title">Photos Smart Organizer</title>
+  <desc id="desc">Photo cards fanning into albums beside a map pin, on a navy to blue gradient.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1f4d"/>
+      <stop offset="1" stop-color="#2456c8"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#dbe6ff" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5b8cff"/>
+      <stop offset="1" stop-color="#a9c4ff"/>
+    </linearGradient>
+    <linearGradient id="pin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fb0ff"/>
+      <stop offset="1" stop-color="#3a6ff0"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.82" cy="0.35" r="0.5">
+      <stop offset="0" stop-color="#6f9bff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#6f9bff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="300" fill="url(#bg)"/>
+  <rect width="1200" height="300" fill="url(#grid)"/>
+  <rect width="1200" height="300" fill="url(#glow)"/>
+
+  <!-- contour lines: a map, abstracted -->
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5">
+    <path d="M640 300 C700 230 780 250 840 200 S980 120 1060 150 S1180 140 1200 110"/>
+    <path d="M610 300 C680 210 770 225 830 175 S970 90 1050 120 S1170 110 1200 80"/>
+    <path d="M580 300 C660 190 760 200 820 150 S960 60 1040 90 S1160 80 1200 50"/>
+  </g>
+
+  <!-- route dots from the pin to the album stack -->
+  <g fill="#ffffff" fill-opacity="0.55">
+    <circle cx="858" cy="196" r="3"/>
+    <circle cx="882" cy="206" r="3"/>
+    <circle cx="906" cy="212" r="3"/>
+    <circle cx="930" cy="214" r="3"/>
+    <circle cx="954" cy="212" r="3"/>
+  </g>
+
+  <!-- fanned photo cards -->
+  <g transform="translate(985 62)">
+    <g transform="rotate(-14 70 90)">
+      <rect x="0" y="0" width="140" height="170" rx="14" fill="url(#card)" fill-opacity="0.55"/>
+    </g>
+    <g transform="rotate(-5 70 90)">
+      <rect x="0" y="0" width="140" height="170" rx="14" fill="url(#card)" fill-opacity="0.75"/>
+    </g>
+    <g transform="rotate(6 70 90)">
+      <rect x="0" y="0" width="140" height="170" rx="14" fill="url(#card)"/>
+      <rect x="12" y="12" width="116" height="100" rx="8" fill="url(#sky)"/>
+      <circle cx="98" cy="38" r="11" fill="#ffffff" fill-opacity="0.9"/>
+      <path d="M12 112 L50 70 L78 96 L96 80 L128 112 Z" fill="#2456c8" fill-opacity="0.85"/>
+      <rect x="12" y="126" width="80" height="9" rx="4.5" fill="#2456c8" fill-opacity="0.55"/>
+      <rect x="12" y="144" width="52" height="9" rx="4.5" fill="#2456c8" fill-opacity="0.3"/>
+      <path d="M118 140 l-6 -5.5 a3.6 3.6 0 0 1 6 -4 a3.6 3.6 0 0 1 6 4 Z" fill="#2456c8"/>
+    </g>
+  </g>
+
+  <!-- map pin -->
+  <g transform="translate(810 116)">
+    <ellipse cx="30" cy="92" rx="22" ry="6" fill="#000000" fill-opacity="0.18"/>
+    <path d="M30 0 C13 0 0 13 0 30 C0 52 30 86 30 86 C30 86 60 52 60 30 C60 13 47 0 30 0 Z" fill="url(#pin)"/>
+    <circle cx="30" cy="30" r="11" fill="#ffffff"/>
+  </g>
+
+  <!-- wordmark -->
+  <g font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Helvetica, Arial, sans-serif" fill="#ffffff">
+    <text x="64" y="118" font-size="20" font-weight="600" letter-spacing="4" fill-opacity="0.7">PHOTOSORG</text>
+    <text x="64" y="172" font-size="50" font-weight="700" letter-spacing="-0.5">Photos Smart Organizer</text>
+    <text x="64" y="214" font-size="22" font-weight="400" fill-opacity="0.85">Every iPhone photo, filed by place, date and trip.</text>
+    <text x="64" y="244" font-size="22" font-weight="400" fill-opacity="0.85">Favourites suggested. Nothing leaves your Mac.</text>
+  </g>
+</svg>
