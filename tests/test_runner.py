@@ -165,11 +165,11 @@ def test_failure_mid_run_is_recorded_and_undoable(
     calls = {"n": 0}
     original = flaky.add_to_album
 
-    def add(folder: str, album: str, uuids: object) -> None:
+    def add(folder: str, album: str, uuids: object) -> list[str]:
         calls["n"] += 1
         if calls["n"] == 4:
             raise RuntimeError("Photos quit")
-        original(folder, album, uuids)  # type: ignore[arg-type]
+        return original(folder, album, uuids)  # type: ignore[arg-type]
 
     flaky.add_to_album = add  # type: ignore[method-assign]
     with pytest.raises(RuntimeError, match="Photos quit"):
@@ -179,6 +179,19 @@ def test_failure_mid_run_is_recorded_and_undoable(
     assert state.high_water() is None  # a failed run never moves the high-water mark
     runner.undo(record.id, flaky, state, cfg)
     assert state.memberships() == set()
+
+
+def test_unreachable_photos_are_skipped_not_fatal(
+    reader: MemoryReader, state: StateStore, cfg: Config, now: datetime, photos: list[Photo]
+) -> None:
+    lost = photos[0].uuid
+    writer = MemoryWriter(unreachable={lost})
+    res = runner.run(reader, writer, state, cfg, now=now)
+    [record] = state.runs()
+    assert record.status == "ok"
+    assert all(lost not in members for members in writer.albums.values())
+    assert all(m.uuid != lost for m in state.memberships())
+    assert res.added == len(state.memberships())
 
 
 def test_since_auto_uses_high_water_minus_lookback(

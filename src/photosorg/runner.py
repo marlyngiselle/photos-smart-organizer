@@ -82,11 +82,21 @@ def run(
                 created += 1
             if album not in known:
                 state.record_album(album, run_id if was_created else None)
+            missing: list[str] = []
             for i in range(0, len(uuids), CHUNK):
                 chunk = uuids[i : i + CHUNK]
-                writer.add_to_album(cfg.folder, album, chunk)
-                added += state.record_memberships(run_id, (Membership(album, u) for u in chunk))
-            log.info("album %r: +%d", album, len(uuids))
+                gone = set(writer.add_to_album(cfg.folder, album, chunk))
+                missing.extend(u for u in chunk if u in gone)
+                placed = (Membership(album, u) for u in chunk if u not in gone)
+                added += state.record_memberships(run_id, placed)
+            log.info("album %r: +%d", album, len(uuids) - len(missing))
+            if missing:
+                log.warning(
+                    "album %r: %d photos not reachable in Photos, skipped: %s",
+                    album,
+                    len(missing),
+                    ", ".join(missing[:5]) + (" ..." if len(missing) > 5 else ""),
+                )
 
         fav = cfg.favourites
         suggested = [sp.photo.uuid for sp in plan.suggestions]

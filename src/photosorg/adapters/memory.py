@@ -27,6 +27,7 @@ class MemoryWriter:
     keywords: dict[str, set[str]] = field(default_factory=dict)
     calls: list[tuple[str, ...]] = field(default_factory=list)
     fail_on: str | None = None
+    unreachable: set[str] = field(default_factory=set)
 
     def _call(self, *args: str) -> None:
         self.calls.append(args)
@@ -40,10 +41,11 @@ class MemoryWriter:
         self.albums[(folder, album)] = []
         return True
 
-    def add_to_album(self, folder: str, album: str, uuids: Sequence[str]) -> None:
+    def add_to_album(self, folder: str, album: str, uuids: Sequence[str]) -> list[str]:
         self._call("add", folder, album, *uuids)
         members = self.albums.setdefault((folder, album), [])
-        members.extend(u for u in uuids if u not in members)
+        members.extend(u for u in uuids if u not in members and u not in self.unreachable)
+        return [u for u in uuids if u in self.unreachable]
 
     def remove_from_album(self, folder: str, album: str, uuids: Sequence[str]) -> None:
         self._call("remove", folder, album, *uuids)

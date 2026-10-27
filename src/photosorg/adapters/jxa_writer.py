@@ -6,6 +6,7 @@ Automation prompt ("python wants to control Photos"), which the user approves on
 
 from __future__ import annotations
 
+import json
 import subprocess
 from collections.abc import Callable, Sequence
 from importlib.resources import as_file, files
@@ -42,9 +43,16 @@ class JxaPhotosWriter:
     def ensure_album(self, folder: str, album: str) -> bool:
         return self._call("ensure", folder, album) == "created"
 
-    def add_to_album(self, folder: str, album: str, uuids: Sequence[str]) -> None:
-        if uuids:
-            self._call("add", folder, album, *uuids)
+    def add_to_album(self, folder: str, album: str, uuids: Sequence[str]) -> list[str]:
+        """Add what Photos can resolve; return the uuids it could not find."""
+        if not uuids:
+            return []
+        out = self._call("add", folder, album, *uuids)
+        try:
+            missing = json.loads(out).get("missing", [])
+        except (ValueError, AttributeError):
+            return []
+        return [str(u) for u in missing]
 
     def remove_from_album(self, folder: str, album: str, uuids: Sequence[str]) -> None:
         if uuids:

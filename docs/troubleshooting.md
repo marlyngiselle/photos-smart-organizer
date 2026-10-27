@@ -15,7 +15,7 @@ photosorg plan --explain --limit 20
 | `osxphotos is not installed` | The `macos` extra was not installed | `python -m pip install -e ".[macos]"` |
 | A new photo has timeline albums but no place albums | Photos had not reverse geocoded it yet | Nothing. A later run inside `trips.lookback_days` adds the place albums |
 | A photo from last month never got filed | It synced after the lookback window, or the library was restored | `photosorg run --since all` reconciles the whole library; it only adds what is missing |
-| `Can't get object. (-1728)` | A photo was deleted in Photos between plan and write | Run again; deleted photos are no longer read |
+| `album ...: N photos not reachable in Photos, skipped` (or `-1728`, `No se puede acceder al objeto`) | Photos cannot script that item: an iCloud Shared Library photo, or one not synced yet | Nothing breaks: the rest of the batch is filed. A later `run --since all` retries the skipped ones |
 | Nothing is suggested for today | Days are judged only once they are over, plus `settle_hours` | Wait, or lower `settle_hours` |
 | The agent is installed but never runs | It was not bootstrapped, or the plist was edited by hand | `photosorg install-agent` again; check `launchctl print gui/$(id -u)/io.github.marlyngiselle.photosorg` |
 | `unknown key 'config.albums.by_planet'` | Typo in `config.toml` | Fix the key; see [configuration.md](configuration.md) |

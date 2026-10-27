@@ -142,6 +142,11 @@ def test_writer_builds_osascript_calls() -> None:
     ]
 
 
+def test_writer_reports_photos_it_could_not_reach() -> None:
+    w = JxaPhotosWriter(runner=FakeRunner('{"added": 1, "missing": ["U2"]}'), script=Path("/x.js"))
+    assert w.add_to_album("F", "A", ["U1", "U2"]) == ["U2"]
+
+
 def test_writer_skips_empty_batches() -> None:
     run = FakeRunner()
     w = JxaPhotosWriter(runner=run, script=Path("/x.js"))
