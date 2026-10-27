@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from photosorg import __version__, config, launchd, report, runner
+from photosorg.adapters.osxphotos_reader import ReaderUnavailable
 from photosorg.ports import PhotoReader, PhotoWriter
 from photosorg.state import DEFAULT_STATE_PATH, StateStore
 
@@ -102,7 +103,13 @@ def main(argv: Sequence[str] | None = None) -> int:
 
             cfg = fixtures.demo_config()
         return _dispatch(args, cfg)
-    except (config.ConfigError, runner.UndoError, launchd.AgentError, ValueError) as exc:
+    except (
+        config.ConfigError,
+        runner.UndoError,
+        launchd.AgentError,
+        ReaderUnavailable,
+        ValueError,
+    ) as exc:
         print(f"photosorg: {exc}", file=sys.stderr)
         return 2
 

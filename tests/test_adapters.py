@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -12,7 +13,7 @@ from typing import Any
 import pytest
 
 from photosorg.adapters.jxa_writer import OSASCRIPT, JxaPhotosWriter, WriterError, script_path
-from photosorg.adapters.osxphotos_reader import OsxPhotosReader, to_photo
+from photosorg.adapters.osxphotos_reader import OsxPhotosReader, ReaderUnavailable, to_photo
 from photosorg.models import MediaType, Scores
 from photosorg.ports import PhotoReader, PhotoWriter
 
@@ -186,3 +187,18 @@ def test_jxa_script_compiles(tmp_path: Path) -> None:
     )
     assert proc.returncode == 0, proc.stderr
     assert out.exists()
+
+
+def test_reader_explains_a_blocked_library(monkeypatch: pytest.MonkeyPatch) -> None:
+    def blocked(**_: object) -> None:
+        try:
+            raise PermissionError(1, "Operation not permitted")
+        except PermissionError as exc:
+            try:
+                raise OSError("Error copying Photos.sqlite: Operation not permitted") from exc
+            except OSError as inner:
+                raise OSError("Error copying Photos.sqlite") from inner
+
+    monkeypatch.setitem(sys.modules, "osxphotos", SimpleNamespace(PhotosDB=blocked))
+    with pytest.raises(ReaderUnavailable, match="Full Disk Access"):
+        list(OsxPhotosReader().photos(None))

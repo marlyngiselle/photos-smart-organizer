@@ -6,6 +6,7 @@ The import is lazy so the rest of the package (and CI on Linux) works without it
 
 from __future__ import annotations
 
+import sys
 from collections.abc import Iterator
 from datetime import datetime
 from typing import Any
@@ -13,6 +14,16 @@ from typing import Any
 from photosorg.models import MediaType, Photo, Scores
 
 UNKNOWN_PERSON = "_UNKNOWN_"
+
+
+def _blocked_by_macos(exc: BaseException) -> bool:
+    """osxphotos wraps the PermissionError from privacy protection in one or more OSErrors."""
+    cause: BaseException | None = exc
+    while cause is not None:
+        if isinstance(cause, PermissionError):
+            return True
+        cause = cause.__cause__
+    return False
 
 
 class ReaderUnavailable(RuntimeError):
@@ -104,11 +115,20 @@ class OsxPhotosReader:
             raise ReaderUnavailable(
                 "osxphotos is not installed. Install with: pip install 'photosorg[macos]'"
             ) from exc
-        self._db = (
-            osxphotos.PhotosDB(library_path=self._library)
-            if self._library
-            else osxphotos.PhotosDB()
-        )
+        try:
+            self._db = (
+                osxphotos.PhotosDB(library_path=self._library)
+                if self._library
+                else osxphotos.PhotosDB()
+            )
+        except OSError as exc:
+            if not _blocked_by_macos(exc):
+                raise
+            raise ReaderUnavailable(
+                f"macOS blocked reading the Photos library ({sys.executable}). Grant Full Disk "
+                "Access to the app running photosorg (Terminal, or this Python for the agent) "
+                "in System Settings, Privacy and Security. See docs/troubleshooting.md"
+            ) from exc
         return self._db
 
     def photos(self, since: datetime | None) -> Iterator[Photo]:
