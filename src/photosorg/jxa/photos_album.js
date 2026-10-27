@@ -20,21 +20,20 @@ function run(argv) {
     case 'ensure':
       return ensureAlbum(Photos, argv[1], argv[2]).created ? 'created' : 'exists';
     case 'add': {
+      // One photo per add: Photos asks the user to confirm bulk actions, and a single
+      // unreachable item would otherwise fail the whole batch.
       const album = ensureAlbum(Photos, argv[1], argv[2]).album;
-      const found = [];
+      let added = 0;
       const missing = [];
       argv.slice(3).forEach(function (u) {
-        const item = resolve(Photos, u);
-        if (item === null) {
+        try {
+          Photos.add([mediaItem(Photos, u)], { to: album });
+          added += 1;
+        } catch (e) {
           missing.push(u);
-        } else {
-          found.push(item);
         }
       });
-      if (found.length > 0) {
-        Photos.add(found, { to: album });
-      }
-      return JSON.stringify({ added: found.length, missing: missing });
+      return JSON.stringify({ added: added, missing: missing });
     }
     case 'remove':
       return removeFromAlbum(Photos, argv[1], argv[2], argv.slice(3));
@@ -57,18 +56,6 @@ function run(argv) {
 // Photos media item ids look like "<uuid>/L0/001"; osxphotos reports the bare uuid.
 function mediaItem(Photos, uuid) {
   return Photos.mediaItems.byId(uuid + '/L0/001');
-}
-
-// A photo osxphotos can see may still be out of reach for scripting (an iCloud Shared Library
-// item, or one not synced yet). It is reported back instead of failing the whole batch.
-function resolve(Photos, uuid) {
-  const item = mediaItem(Photos, uuid);
-  try {
-    item.id();
-    return item;
-  } catch (e) {
-    return null;
-  }
 }
 
 function findFolder(Photos, name) {
@@ -112,7 +99,7 @@ function removeFromAlbum(Photos, folderName, albumName, uuids) {
   const folder = findFolder(Photos, folderName);
   const fresh = Photos.make({ new: 'album', named: albumName + ' (rebuilding)', at: folder });
   if (keep.length > 0) {
-    Photos.add(keep.map(function (id) { return Photos.mediaItems.byId(id); }), { to: fresh });
+    keep.forEach(function (id) { Photos.add([Photos.mediaItems.byId(id)], { to: fresh }); });
   }
   Photos.delete(album);
   fresh.name = albumName;
