@@ -136,6 +136,8 @@ Then on your own library, in this order.
 .venv/bin/photosorg install-agent --interval 30
 ```
 
+Prefer one pass a day? `install-agent --at 11:00` schedules a daily run instead; if the Mac is asleep at that time, launchd runs it at the next wake.
+
 The first real `run` from Terminal triggers the macOS prompt that lets Terminal control Photos. Approve it while you are watching; a background agent cannot show it.
 
 > [!TIP]

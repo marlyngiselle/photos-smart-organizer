@@ -1,13 +1,14 @@
 """LaunchAgent rendering and (un)installation.
 
-The agent runs ``photosorg run --since auto`` every N minutes in the user's session, at low
-priority, and logs to ``~/Library/Logs/photosorg``.
+The agent runs ``photosorg run --since auto`` every N minutes, or once a day at a fixed time,
+in the user's session, at low priority, and logs to ``~/Library/Logs/photosorg``.
 """
 
 from __future__ import annotations
 
 import os
 import plistlib
+import re
 import subprocess
 import sys
 from collections.abc import Callable
@@ -31,6 +32,7 @@ class AgentSpec:
     config: Path | None = None
     log_dir: Path = LOG_DIR
     label: str = LABEL
+    daily_at: tuple[int, int] | None = None
 
     def program_arguments(self) -> list[str]:
         args = [self.python, "-m", "photosorg"]
@@ -39,13 +41,28 @@ class AgentSpec:
         return [*args, "run", "--since", "auto"]
 
 
+def parse_time(value: str) -> tuple[int, int]:
+    """``"11:00"`` to ``(11, 0)``, for ``install-agent --at``."""
+    m = re.fullmatch(r"(\d{1,2}):(\d{2})", value.strip())
+    if m is None or int(m.group(1)) > 23 or int(m.group(2)) > 59:
+        raise AgentError(f"time must be HH:MM between 00:00 and 23:59, got {value!r}")
+    return int(m.group(1)), int(m.group(2))
+
+
 def render(spec: AgentSpec) -> bytes:
-    if not 5 <= spec.interval_minutes <= 1440:
+    schedule: dict[str, object]
+    if spec.daily_at is not None:
+        # launchd runs a missed calendar job at the next wake, so a Mac asleep at 11:00 still sorts
+        hour, minute = spec.daily_at
+        schedule = {"StartCalendarInterval": {"Hour": hour, "Minute": minute}}
+    elif not 5 <= spec.interval_minutes <= 1440:
         raise AgentError("interval must be between 5 and 1440 minutes")
+    else:
+        schedule = {"StartInterval": spec.interval_minutes * 60}
     plist = {
         "Label": spec.label,
         "ProgramArguments": spec.program_arguments(),
-        "StartInterval": spec.interval_minutes * 60,
+        **schedule,
         "RunAtLoad": False,
         "ProcessType": "Background",
         "LowPriorityIO": True,

@@ -57,6 +57,15 @@ def test_render_agent(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> Non
     assert data["StartInterval"] == 900
 
 
+def test_render_daily_agent(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    code, out = run(
+        capsys, "install-agent", "--render-only", "--output", str(tmp_path), "--at", "11:00"
+    )
+    assert code == 0
+    data = plistlib.loads(Path(out.strip()).read_bytes())
+    assert data["StartCalendarInterval"] == {"Hour": 11, "Minute": 0}
+
+
 def test_bad_config_exits_2(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     bad = tmp_path / "c.toml"
     bad.write_text("[albums]\nby_planet = true\n")

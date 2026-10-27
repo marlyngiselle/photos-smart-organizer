@@ -56,6 +56,7 @@ def _parser() -> argparse.ArgumentParser:
 
     ia = sub.add_parser("install-agent", help="install the launchd LaunchAgent")
     ia.add_argument("--interval", type=int, help="minutes between runs (default from config)")
+    ia.add_argument("--at", metavar="HH:MM", help="run once a day at this time instead")
     ia.add_argument(
         "--render-only",
         action="store_true",
@@ -108,12 +109,16 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def _dispatch(args: argparse.Namespace, cfg: config.Config) -> int:
     if args.command == "install-agent":
-        spec = launchd.AgentSpec(args.interval or cfg.interval_minutes, config=args.config)
+        daily_at = launchd.parse_time(args.at) if args.at else None
+        spec = launchd.AgentSpec(
+            args.interval or cfg.interval_minutes, config=args.config, daily_at=daily_at
+        )
         if args.render_only:
             print(launchd.write(spec, args.output))
             return 0
         path = launchd.install(spec, load=not args.no_load)
-        print(f"installed {path}, every {spec.interval_minutes} min, logs in {spec.log_dir}")
+        when = f"daily at {args.at}" if daily_at else f"every {spec.interval_minutes} min"
+        print(f"installed {path}, {when}, logs in {spec.log_dir}")
         return 0
     if args.command == "uninstall-agent":
         print("removed" if launchd.uninstall() else "no agent installed")

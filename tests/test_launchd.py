@@ -49,6 +49,23 @@ def test_interval_bounds(tmp_path: Path, minutes: int) -> None:
         launchd.render(AgentSpec(minutes, log_dir=tmp_path))
 
 
+def test_daily_at_uses_a_calendar_schedule(tmp_path: Path) -> None:
+    data = plistlib.loads(launchd.render(spec(tmp_path, daily_at=(11, 0))))
+    assert data["StartCalendarInterval"] == {"Hour": 11, "Minute": 0}
+    assert "StartInterval" not in data
+
+
+@pytest.mark.parametrize(("value", "expected"), [("11:00", (11, 0)), ("7:05", (7, 5))])
+def test_parse_time(value: str, expected: tuple[int, int]) -> None:
+    assert launchd.parse_time(value) == expected
+
+
+@pytest.mark.parametrize("value", ["24:00", "11:60", "11", "11h", ""])
+def test_parse_time_rejects_bad_input(value: str) -> None:
+    with pytest.raises(AgentError):
+        launchd.parse_time(value)
+
+
 class FakeLaunchctl:
     def __init__(self, fail: str | None = None) -> None:
         self.argv: list[list[str]] = []

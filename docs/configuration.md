@@ -19,7 +19,7 @@ cp examples/config.toml ~/.config/photosorg/config.toml
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `interval_minutes` | `30` | LaunchAgent cadence, 5 to 1440 |
+| `interval_minutes` | `30` | LaunchAgent cadence, 5 to 1440. `install-agent --at HH:MM` replaces it with one run a day |
 
 ## `[home]`
 
