@@ -50,17 +50,18 @@ def place_albums(photo: Photo, cfg: Config) -> list[str]:
     rules, t = cfg.albums, cfg.albums.templates
     names: list[str] = []
     country, city = _label(photo.country), _label(photo.city)
+    year, month = photo.day.year, photo.day.month
     if rules.by_geofence and photo.latitude is not None and photo.longitude is not None:
         home = Geofence(cfg.home.name, cfg.home.lat, cfg.home.lon, cfg.home.radius_km * 1000)
         fences = (home, *cfg.geofences)
         names += [
-            clean(t.geofence.format(name=f.name))
+            clean(t.geofence.format(name=f.name, year=year, month=month))
             for f in matching_geofences(photo.latitude, photo.longitude, fences)
         ]
     if rules.by_country and country:
-        names.append(clean(t.country.format(country=country)))
+        names.append(clean(t.country.format(country=country, year=year, month=month)))
     if rules.by_city and country and city:
-        names.append(clean(t.city.format(country=country, city=city)))
+        names.append(clean(t.city.format(country=country, city=city, year=year, month=month)))
     return names
 
 

@@ -31,6 +31,9 @@ by_month = true
 trips = true
 
 [albums.templates]
+# Place templates also accept {year} and {month}. For one album per place and year
+# ("Lisbon 2026"), use "{city} {year}" and "{country} {year}" and set by_year,
+# by_month and trips to false.
 country = "Places · {country}"
 city = "Places · {country} · {city}"
 geofence = "Places · {name}"

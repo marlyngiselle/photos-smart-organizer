@@ -31,6 +31,15 @@ def test_photo_without_location_gets_date_albums_only(cfg: Config, photos: list[
     ]
 
 
+def test_place_templates_can_carry_the_year(cfg: Config, photos: list[Photo]) -> None:
+    t = Templates(country="{country} {year}", city="{city} {year}", geofence="{name} {year}")
+    rules = AlbumRules(by_year=False, by_month=False, templates=t)
+    assert albums_for(by_label(photos, "louvre-pyramid"), replace(cfg, albums=rules)) == [
+        "France 2026",
+        "Paris 2026",
+    ]
+
+
 def test_rules_can_be_switched_off(cfg: Config, photos: list[Photo]) -> None:
     off = replace(cfg, albums=AlbumRules(by_country=False, by_year=False, by_geofence=False))
     assert albums_for(by_label(photos, "louvre-pyramid"), off) == [

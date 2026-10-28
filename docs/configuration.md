@@ -56,9 +56,9 @@ Python format strings. Available fields are listed per template. Names are norma
 
 | Key | Fields | Default |
 | --- | --- | --- |
-| `country` | `country` | `Places · {country}` |
-| `city` | `country`, `city` | `Places · {country} · {city}` |
-| `geofence` | `name` | `Places · {name}` |
+| `country` | `country`, `year`, `month` | `Places · {country}` |
+| `city` | `country`, `city`, `year`, `month` | `Places · {country} · {city}` |
+| `geofence` | `name`, `year`, `month` | `Places · {name}` |
 | `year` | `year`, `month` | `Timeline · {year}` |
 | `month` | `year`, `month` | `Timeline · {year}-{month:02d}` |
 | `trip` | `city`, `year`, `month` | `Trip · {city} · {year}-{month:02d}` |
